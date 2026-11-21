@@ -102,3 +102,5 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
 - t/leg8.mjs 通过：Boss 战全程（三阶段、slam/sweep/volley/combo/charge/storm 全部出现，机器人挨了 8 次、用光 3 瓶药、41 秒击败），死亡演出 → onBossDefeated → 通关界面 victory（统计：time/deaths/kills/shards 33/68/relics 0/7）。
   ⇒ 全流程（新游戏 → 通关）已由机器人逐段验证可完成。Boss 950 血在 41 秒内被打完，偏快：考虑把 Boss 血量提到 ~1500 或降低 recover 时长。
   剩余待办：① 通关界面“继续探索”、暂停/设置 UI、返回主菜单实测 ② 按帧率自动降画质 + 软件渲染默认低画质 ③ Boss 平衡 ④ 截图检查各区域画面 ⑤ README ⑥ npm run build ⑦ 提交、交付（browser_preview + 源码）。
+- t/ui1.mjs 通过：通关界面“继续探索”→ playing；Esc 暂停；设置（画质 low、显示 FPS 即时生效并写入 localStorage）；帮助页 Esc 返回；继续；返回主菜单（按钮：continue/confirmNew/settings/help）。
+  剩余：Boss 平衡、按帧率自动降画质、各区域截图检查、README、npm run build、提交、交付。
