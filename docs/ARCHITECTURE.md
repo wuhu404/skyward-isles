@@ -96,3 +96,6 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
 - t/leg6.mjs 通过：气流柱把玩家从 28 升到 51.8（82 帧），落到 F 岛，cp_f 已激活（存档在 cp_f）。
   下一步 t/leg7.mjs：F 岛战斗（2 幽光灵 + 1 石像）→ 滑翔祭坛（F 岛中心 (-23.4,-302.4) 按 F）→ 从北缘 (≈-22.4,-322) 起跳并按住空格滑翔到 G(-19.4,28,-398.4)，途中气流在航线中点 → cp_boss → Boss 战（机器人 fight 需加对 Boss 的处理）→ 通关界面。
   全流程通过后：暂停/设置 UI 实测、自动降画质、README、npm run build、提交。
+- t/leg7.mjs 通过：F 岛战斗、滑翔祭坛、从 F 北缘滑翔到 G 岛并激活 cp_boss（存档在 cp_boss，三项能力齐全）。
+  下一步 t/leg8.mjs：Boss 战（Boss 在 G 岛中心 (-19.4,28,-398.4)，world.boss；玩家靠近 17m 开战；机器人需：靠近攻击、state 为 slam/combo(step1)/sweep/charge 时用 Q 翻滚或后撤、storm 时保持移动、recover 时猛攻、低血喝药 R）→ 验证三阶段切换、死亡演出、onBossDefeated、通关界面（ui.screen==='victory'）与“继续探索”。
+  其余待办：暂停/设置 UI 实测、按帧率自动降画质 + 软件渲染默认低画质、README、npm run build、提交、交付。
