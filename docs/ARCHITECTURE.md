@@ -81,3 +81,4 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
 - 进度：t/leg2.mjs（B 岛推箱/闸门/二段跳）与 t/leg3.mjs（之字浮石阶梯 → C 岛战斗 → 符文谜题 → 移动平台 → D 岛 cp_d）均已通过；死亡界面与“从风之碑重试”已验证。
   B→C 浮石已改为之字形（原直线阶梯会被上一级挡头）。机器人按键需同时写 down+pressed（否则触发短跳）。
   每个 leg 脚本开头：goto 页面 → 点 [data-act="continue"] → 注入 bot.js。下一步 leg4：D 战斗 + 风刃祭坛(-62,-188) + 风刃打水晶(-45,24,-214) + 光桥 → E。
+- leg4 首次运行：D 岛战斗通过（hp 100→76）；机器人按 F 时离风刃祭坛正好 4m（提示半径 4）没拿到能力 → 脚本改为走到 (-62,-186.3) 再按 F（属脚本问题，非游戏 bug）。光桥 / E 岛尚未验证。
