@@ -13,7 +13,7 @@ import { angleDiff, clamp01, damp, dampAngle, TAU, yawOf } from '../core/math';
 import { Enemy } from './Enemy';
 
 export const BOSS_NAME = '苍穹守卫 · 岚';
-const MAX_HP = 950;
+const MAX_HP = 1500;
 
 export class Boss extends Enemy implements BossLike {
   started = false;

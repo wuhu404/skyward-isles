@@ -71,6 +71,8 @@ export interface Settings {
   sfx: number;
   showFps: boolean;
   fov: number;
+  /** 帧率持续偏低时自动降低画质 */
+  autoQuality: boolean;
 }
 export const defaultSettings = (): Settings => ({
   quality: 'high',
@@ -84,6 +86,7 @@ export const defaultSettings = (): Settings => ({
   sfx: 0.9,
   showFps: false,
   fov: 58,
+  autoQuality: true,
 });
 export function loadSettings(): Settings {
   try {

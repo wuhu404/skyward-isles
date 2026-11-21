@@ -104,3 +104,5 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
   剩余待办：① 通关界面“继续探索”、暂停/设置 UI、返回主菜单实测 ② 按帧率自动降画质 + 软件渲染默认低画质 ③ Boss 平衡 ④ 截图检查各区域画面 ⑤ README ⑥ npm run build ⑦ 提交、交付（browser_preview + 源码）。
 - t/ui1.mjs 通过：通关界面“继续探索”→ playing；Esc 暂停；设置（画质 low、显示 FPS 即时生效并写入 localStorage）；帮助页 Esc 返回；继续；返回主菜单（按钮：continue/confirmNew/settings/help）。
   剩余：Boss 平衡、按帧率自动降画质、各区域截图检查、README、npm run build、提交、交付。
+- 已加：设置项 autoQuality（连续 4 秒 <30FPS 逐级降画质）；Boss 血量 950→1500（机器人 47 秒击败、挨 5 次、剩 2 瓶药）。tsc 通过。
+  剩余：各区域截图检查（t/shots.mjs：改存档 checkpoint 后继续游戏截图）、README、npm run build、提交、交付。

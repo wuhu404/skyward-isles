@@ -55,6 +55,8 @@ export class Game {
   private deadT = -1;
   private victoryT = -1;
   private saveT = 0;
+  private perfT = 0;
+  private perfN = 0;
   private busy = false;
   private built = false;
   private abort = new AbortController();
@@ -390,9 +392,28 @@ export class Game {
     r.fx.bloom = this.sky.cur.bloom;
     r.renderer.toneMappingExposure = this.sky.cur.exposure;
     this.ui.update(dt, c, simulating);
+    if (simulating && this.state === 'playing') this.watchPerf(dt);
     r.render();
     inp.endFrame();
   };
+
+  /** 连续数秒低于 30 FPS 时逐级降画质（高 → 中 → 低 → 关闭后期），每级只降一次并提示玩家 */
+  private watchPerf(dt: number) {
+    const s = this.settings;
+    if (!s.autoQuality || document.hidden) { this.perfT = this.perfN = 0; return; }
+    this.perfT += dt;
+    this.perfN++;
+    if (this.perfT < 4) return;
+    const fps = this.perfN / this.perfT;
+    this.perfT = this.perfN = 0;
+    if (fps >= 30) return;
+    if (s.quality === 'high') s.quality = 'medium';
+    else if (s.quality === 'medium') s.quality = 'low';
+    else if (s.postfx) s.postfx = false;
+    else return;
+    this.applySettings(s);
+    this.ui.toast('帧率偏低，已自动降低画质（可在设置中调整）');
+  }
 
   /** 固定上限的子步模拟 */
   private simulate(dt: number, withInput: boolean) {

@@ -204,6 +204,7 @@ export class UI implements UIHooks {
           <div class="row"><span>音乐音量</span>${rng('music', 0, 1, 0.01, 'pct')}</div>
           <div class="row"><span>音效音量</span>${rng('sfx', 0, 1, 0.01, 'pct')}</div>
           <div class="row"><span>显示帧率</span><div>${tog('showFps')}</div><output></output></div>
+          <div class="row"><span>卡顿时自动降画质</span><div>${tog('autoQuality')}</div><output></output></div>
           <div class="btns"><button class="btn" data-act="back">返回</button></div></div></div>`;
       }
       default: return '<div></div>';
@@ -229,7 +230,7 @@ export class UI implements UIHooks {
         break;
       }
       case 'tog': {
-        const k = b.dataset.k as 'shadows' | 'postfx' | 'invertY' | 'showFps';
+        const k = b.dataset.k as 'shadows' | 'postfx' | 'invertY' | 'showFps' | 'autoQuality';
         this.settings[k] = !this.settings[k];
         b.classList.toggle('on', this.settings[k]);
         b.textContent = this.settings[k] ? '开启' : '关闭';
