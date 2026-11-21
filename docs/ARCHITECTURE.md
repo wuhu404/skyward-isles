@@ -86,3 +86,6 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
 - t/leg4b.mjs 通过：逐块跳过光之阶梯到达 E 岛 cp_e（存档现位于 cp_e）。
   下一步 leg5：E 岛战斗 → 16 秒内用风刃点亮三颗水晶 (-84,-256 高7)、(-50,-284 高6)、(-98,31,-280)（flag updraft_e）→ 气流柱在 (-39.7,28,-285.4) 上升到 50 → 落到 F 岛 (-23.4,50,-302.4) → cp_f、滑翔祭坛在 F 岛中心 → 向北滑翔到 G (-19.4,28,-398.4)，途中气流 → cp_boss → Boss 战 → 通关界面。
   机器人瞄准风刃：b.face(x,z) 并设 game.cam.pitch = -atan2(dy, d)，自动瞄准锥角 0.42 rad、射程 46。
+- t/leg5.mjs 首次运行：E 岛战斗通过（hp 100→68）。三水晶谜题未完成（6.6 秒内对三颗 Crystal 各放风刃后 flags 中没有 updraft_e）。
+  水晶 hitPos：(-84,36.2,-256)、(-50,35,-284)、(-98,33.5,-280)，玩家站在 (-68,28,-269)。待查：风刃是否真的命中高处水晶（Player.fireBlade 自动瞄准 / dy 钳制、
+  Projectiles 风刃命中判定 hitRadius+0.9 与 hitHeight*0.5+0.9、被树或冰柱底座挡住）、Crystal 的 lit 字段名与限时窗口逻辑。存档仍在 cp_e。
