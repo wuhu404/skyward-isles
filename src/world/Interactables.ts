@@ -16,6 +16,8 @@ export abstract class Thing {
   /** 玩家在交互范围内时返回提示文本 */
   prompt(): string | null { return null; }
   interact(): void { /* 默认无交互 */ }
+  /** 玩家使用“脱离卡死”时调用：把可能被玩坏的机关恢复到可用状态（不改动已完成的进度） */
+  unstick(): void { /* 默认无需处理 */ }
   protected near(r: number, dy = 2.5): boolean {
     const p = this.ctx.player.pos;
     const dx = p.x - this.pos.x, dz = p.z - this.pos.z;
@@ -303,12 +305,19 @@ export class PushBlock extends Thing {
     this.body.setTranslation({ x, y: y + this.half + 0.05, z }, true);
     this.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
   }
+  /** 石块被推进死角时无法再推到压板上：回到初始位置 */
+  unstick() {
+    this.body.setTranslation(this.home, true);
+    this.body.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
+    this.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    this.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+    this.pos.copy(this.home);
+  }
   update(_dt: number) {
     const t = this.body.translation();
     this.pos.set(t.x, t.y, t.z);
     if (t.y < this.home.y - 9) {
-      this.body.setTranslation(this.home, true);
-      this.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      this.unstick();
       this.ctx.fx.pillar(this.home.x, this.home.y - this.half, this.home.z, 1, 4, 0.6, 0x7ff5ff);
       this.ctx.ui.toast('石块回到了原位');
     }

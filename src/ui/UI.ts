@@ -8,13 +8,16 @@ import type { Ctx, UIHooks } from '../core/Context';
 import type { Quality, Settings } from '../core/Save';
 import { WEAPON_NAMES, WEAPON_THRESHOLDS } from '../world/World';
 
-export type Screen = 'loading' | 'menu' | 'pause' | 'settings' | 'help' | 'dead' | 'victory' | 'card' | 'confirm' | 'none';
+export type Screen = 'loading' | 'menu' | 'pause' | 'settings' | 'help' | 'dead' | 'victory' | 'card' | 'confirm' | 'unstuck' | 'none';
 
 export interface UIActions {
   newGame(): void;
   continueGame(): void;
   resume(): void;
   retry(): void;
+  /** 已唤醒、可传送的风之碑（按旅途顺序） */
+  unstuckTargets(): { id: string; name: string; current: boolean }[];
+  unstuck(id: string): void;
   toMenu(): void;
   settingsChanged(s: Settings): void;
   click(back?: boolean): void;
@@ -149,7 +152,15 @@ export class UI implements UIHooks {
             <button class="btn" data-act="resume">继续游戏</button>
             <button class="btn" data-act="settings">设置</button>
             <button class="btn" data-act="help">操作说明</button>
+            <button class="btn" data-act="unstuckMenu">脱离卡死<small>卡住或无法前进时，传送回风之碑</small></button>
             <button class="btn" data-act="menu">返回主菜单<small>进度保存在最近的风之碑</small></button>
+          </div></div>`;
+      case 'unstuck':
+        return `<div class="screen dim center"><div class="h2">脱离卡死</div>
+          <p class="lead">选择一座已唤醒的风之碑，风会把你送回那里。<br>能力、收集品和已解开的机关都会保留；敌人与可推动的石块会回到原位。</p>
+          <div class="btns cols">
+            ${this.actions.unstuckTargets().map((t) => `<button class="btn" data-act="unstuck" data-id="${t.id}">${t.name}${t.current ? '<small>最近休息的风之碑</small>' : ''}</button>`).join('')}
+            <button class="btn wide" data-act="back">返回</button>
           </div></div>`;
       case 'dead':
         return `<div class="screen dim center"><div class="h2 red">旅途中断</div><p class="lead">风会将你带回最近的风之碑。</p>
@@ -222,6 +233,8 @@ export class UI implements UIHooks {
       case 'retry': a.click(); a.retry(); break;
       case 'menu': a.click(true); a.toMenu(); break;
       case 'settings': case 'help': a.click(); this.returnTo = this.screen; this.show(act); break;
+      case 'unstuckMenu': a.click(); this.returnTo = this.screen; this.show('unstuck'); break;
+      case 'unstuck': a.click(); a.unstuck(b.dataset.id!); break;
       case 'back': a.click(true); this.show(this.returnTo); break;
       case 'seg': {
         this.settings.quality = b.dataset.v as Quality;

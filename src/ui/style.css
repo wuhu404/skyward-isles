@@ -30,6 +30,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1020; col
 .btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
 .btn small { display: block; font-size: 11px; letter-spacing: 0.1em; color: var(--dim); margin-top: 4px; }
 .center .btn { text-align: center; }
+.btns.cols { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+.btns.cols .wide { grid-column: 1 / -1; }
 .center .btn:hover { padding-left: 30px; }
 .foot { position: absolute; bottom: 22px; left: 9vw; font-size: 12px; color: var(--dim); letter-spacing: 0.12em; }
 

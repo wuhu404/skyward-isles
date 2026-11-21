@@ -74,6 +74,8 @@ export class Game {
       continueGame: () => void this.start(false),
       resume: () => this.resume(),
       retry: () => void this.retry(),
+      unstuckTargets: () => this.unstuckTargets(),
+      unstuck: (id) => void this.unstuck(id),
       toMenu: () => void this.toMenu(),
       settingsChanged: (s) => this.applySettings(s),
       click: (back) => { this.audio.unlock(); this.audio.play(back ? 'uiBack' : 'ui'); },
@@ -242,6 +244,40 @@ export class Game {
       this.input.enabled = true;
       this.state = 'playing';
       this.updateZone(true);
+    });
+    this.busy = false;
+  }
+  /** 可用于脱困的风之碑：起点、已唤醒的、以及当前存档点 */
+  private unstuckTargets() {
+    if (!this.built) return [];
+    const { save, world } = this.ctx;
+    return [...world.checkpoints].filter(([id]) => id === 'cp_start' || id === save.checkpoint || save.flags.includes(id))
+      .map(([id, cp]) => ({ id, name: cp.name, current: id === save.checkpoint }));
+  }
+  /**
+   * 脱离卡死：传送回指定风之碑。不算死亡、不丢进度；
+   * 清掉弹幕与特效，敌人和可推动的机关回到原位，玩家的一切临时状态（硬直、冻结、滑翔、击退）归零。
+   */
+  private async unstuck(id: string) {
+    if (this.busy || this.state !== 'paused' || !this.ctx.world.checkpoints.has(id)) return;
+    this.busy = true;
+    this.input.requestLock();
+    await this.ui.transition(() => {
+      const c = this.ctx;
+      c.save.checkpoint = id;
+      c.projectiles.clear();
+      this.fx.clear();
+      c.world.resetEncounters();
+      c.world.unstick();
+      this.spawnAtCheckpoint();
+      writeSave(c.save);
+      this.ui.resetHud();
+      this.ui.show('none');
+      this.input.clear();
+      this.input.enabled = true;
+      this.state = 'playing';
+      this.updateZone(true);
+      this.ui.toast(`已回到风之碑 · ${c.world.checkpoints.get(id)!.name}`, 'good', 4);
     });
     this.busy = false;
   }

@@ -16,13 +16,15 @@ const SLASH_FRAG = /* glsl */ `
   uniform vec3 uColor; uniform float uT; uniform float uDir;
   varying float vArc; varying float vRad;
   void main(){
-    float arc = uDir > 0.0 ? vArc : 1.0 - vArc;
+    // MSAA 边缘像素的 varying 会被外插到 [0,1] 之外：先钳制，否则 pow(负数) 在真实显卡上得到 NaN，经 Bloom 扩散成黑块
+    float rad = clamp(vRad, 0.0, 1.0);
+    float arc = clamp(uDir > 0.0 ? vArc : 1.0 - vArc, 0.0, 1.0);
     float lead = uT * 1.9;
     float sweep = smoothstep(lead - 0.85, lead, arc) * step(arc, lead);
-    float radial = pow(vRad, 2.2) * smoothstep(1.0, 0.94, vRad);
+    float radial = pow(rad, 2.2) * (1.0 - smoothstep(0.94, 1.0, rad));
     float fade = 1.0 - smoothstep(0.45, 1.0, uT);
-    float a = sweep * radial * fade * smoothstep(0.0, 0.08, arc) * smoothstep(1.0, 0.9, arc);
-    gl_FragColor = vec4(uColor * (1.0 + 2.0 * pow(vRad, 6.0)), a);
+    float a = sweep * radial * fade * smoothstep(0.0, 0.08, arc) * (1.0 - smoothstep(0.9, 1.0, arc));
+    gl_FragColor = vec4(uColor * (1.0 + 2.0 * pow(rad, 6.0)), clamp(a, 0.0, 1.0));
   }`;
 const TELE_FRAG = /* glsl */ `
   uniform vec3 uColor; uniform float uT; uniform float uFade;
@@ -33,7 +35,7 @@ const TELE_FRAG = /* glsl */ `
     float border = smoothstep(0.9, 0.95, r);
     float fill = step(r, uT) * 0.3;
     float edge = smoothstep(uT - 0.08, uT, r) * step(r, uT) * 0.5;
-    gl_FragColor = vec4(uColor, (border * 0.9 + fill + edge + 0.1) * uFade);
+    gl_FragColor = vec4(uColor, clamp((border * 0.9 + fill + edge + 0.1) * uFade, 0.0, 1.0));
   }`;
 const UV_VERT = /* glsl */ `
   varying vec2 vUv;
@@ -42,7 +44,7 @@ const PILLAR_FRAG = /* glsl */ `
   uniform vec3 uColor; uniform float uFade;
   varying vec2 vUv;
   void main(){
-    float a = pow(1.0 - vUv.y, 1.5) * uFade;
+    float a = pow(clamp(1.0 - vUv.y, 0.0, 1.0), 1.5) * uFade;
     gl_FragColor = vec4(uColor * 1.6, a);
   }`;
 

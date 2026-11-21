@@ -71,28 +71,28 @@ const SKY_FRAG = /* glsl */ `
     vec3 d = normalize(vDir);
     float h = d.y;
     vec3 col = h > 0.0
-      ? mix(uHorizon, uTop, pow(smoothstep(0.0, 0.85, h), 0.55))
-      : mix(uHorizon, uBottom, smoothstep(0.0, -0.45, h));
-    float s = max(dot(d, uSunDir), 0.0);
+      ? mix(uHorizon, uTop, pow(max(smoothstep(0.0, 0.85, h), 1e-5), 0.55))
+      : mix(uHorizon, uBottom, smoothstep(0.0, 0.45, -h));
+    float s = clamp(dot(d, uSunDir), 1e-5, 1.0);
     col += uSunColor * (smoothstep(0.9993, 0.9997, s) * 2.5 + pow(s, 40.0) * 0.35 + pow(s, 6.0) * 0.12);
     if (uStars > 0.01 && h > -0.1) {
       vec3 p = d * 140.0;
       vec3 ip = floor(p);
       float r = hash(ip);
       float tw = 0.6 + 0.4 * sin(uTime * 2.0 + r * 60.0);
-      float st = step(0.992, r) * smoothstep(0.5, 0.05, length(fract(p) - 0.5)) * tw;
+      float st = step(0.992, r) * (1.0 - smoothstep(0.05, 0.5, length(fract(p) - 0.5))) * tw;
       col += vec3(0.85, 0.9, 1.0) * st * uStars * smoothstep(-0.1, 0.25, h) * 1.6;
     }
     if (uAurora > 0.01 && h > 0.05) {
       float x = atan(d.x, d.z);
       float w = sin(x * 3.0 + uTime * 0.12) * 0.12 + sin(x * 7.0 - uTime * 0.2) * 0.05;
-      float band = smoothstep(0.16, 0.0, abs(h - 0.42 - w)) + 0.6 * smoothstep(0.1, 0.0, abs(h - 0.62 + w * 1.4));
+      float band = (1.0 - smoothstep(0.0, 0.16, abs(h - 0.42 - w))) + 0.6 * (1.0 - smoothstep(0.0, 0.1, abs(h - 0.62 + w * 1.4)));
       float rays = 0.55 + 0.45 * sin(x * 60.0 + sin(x * 9.0 + uTime * 0.5) * 4.0);
       vec3 ac = mix(vec3(0.15, 1.0, 0.65), vec3(0.6, 0.35, 1.0), smoothstep(0.3, 0.7, h));
       col += ac * band * rays * uAurora * 0.55;
     }
     col += vec3(0.75, 0.7, 1.0) * uFlash * (0.25 + 0.5 * smoothstep(0.0, 0.8, h));
-    gl_FragColor = vec4(col, 1.0);
+    gl_FragColor = vec4(max(col, 0.0), 1.0);
   }`;
 
 export class Sky {

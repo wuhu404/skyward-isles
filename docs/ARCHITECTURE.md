@@ -75,10 +75,20 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
 - 反复“继续 → 返回主菜单”三轮，GPU geometry / texture / program 数量与 Rapier 刚体、碰撞体数量保持不变。
 - 未覆盖：七件遗物的收集路线、真实显卡上的帧率（开发机只有软件渲染）。
 
-## 用户反馈处理备忘（进行中，交付前整理）
-- 反馈 1：攻击等特效出现时被“黑色方块”覆盖。SwiftShader 下无法复现（~/tools/pw/fx.mjs 截图正常）。判断为着色器未定义行为在真实 GPU 上产生 NaN，
-  经 HalfFloat 缓冲 + Bloom 模糊扩散成黑块：MSAA 边缘像素的 varying 外插到 [0,1] 之外 → `pow(负数, y)`（Effects.ts SLASH_FRAG / PILLAR_FRAG）；
-  `smoothstep(e0 > e1)` 反向边界（Particles.ts FRAG_ADD、Effects.ts、Sky.ts）。修复：所有 pow 的底数先 clamp/max(0)，反向 smoothstep 改为 1.0 - smoothstep(lo, hi, x)，
-  粒子 sizeEnd 除零保护、死粒子移出裁剪空间，Bloom 前加一个 NaN/Inf 清理 pass。无法在真实显卡上验证，需用户确认。
-- 反馈 2：会卡关 → 暂停菜单加“脱离卡死”（传送回最近风之碑，不丢进度，敌人不重置）。
-- 工具：~/tools/pw/fx.mjs（独立 headless Chrome，bot.draw() 渲染一帧后截图）、file.mjs（验证单文件 file://）。
+## 着色器与后期的数值安全
+
+真实显卡上，片元着色器里一个 NaN 像素写进 HalfFloat 缓冲后，会被 Bloom 的分离式模糊扩散成一大块黑色矩形
+（用 `sqrt(负 uniform)` 注入几个像素即可复现：关掉清理 pass 整屏变黑，打开后只剩一个小点）。因此约定：
+
+- `pow()` 的底数必须先 `clamp` / `max(0)`：MSAA 边缘像素的 varying 会被外插到 [0,1] 之外。
+- `smoothstep(e0, e1, x)` 必须 `e0 < e1`；需要反向时写 `1.0 - smoothstep(lo, hi, x)`。
+- 片元输出的 alpha 钳制到 [0,1]，颜色不小于 0。
+- `Renderer` 在 Bloom 之前有一个 `SanitizeShader` pass，把 NaN / Inf / 负值收回安全范围，作为最后一道保险。
+- 粒子池里已熄灭的粒子在顶点着色器中被移出裁剪空间，不依赖 `gl_PointSize = 0`。
+
+## 脱离卡死
+
+暂停菜单 →「脱离卡死」→ 选择一座已唤醒的风之碑（`Game.unstuckTargets()` / `Game.unstuck(id)`）。
+流程与死亡重试相同但不计死亡：清空弹幕与特效 → `world.resetEncounters()` → `world.unstick()`（各 `Thing.unstick()`，
+目前 `PushBlock` 会回到初始位置）→ `spawnAtCheckpoint()` → 写存档。能力、收集品、flags 均不改动。
+新增可能被玩家“玩坏”的机关时，请实现 `unstick()`。

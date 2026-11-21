@@ -33,7 +33,7 @@ const FinalShader = {
       col.g = texture2D(tDiffuse, vUv).g;
       col.b = texture2D(tDiffuse, vUv - off).b;
       float l = dot(col, vec3(0.2126, 0.7152, 0.0722));
-      col = mix(vec3(l), col, uSat);
+      col = max(mix(vec3(l), col, uSat), 0.0);
       float vig = smoothstep(0.08, 0.62, d);
       col *= 1.0 - vig * uVignette;
       float pulse = 0.6 + 0.4 * sin(uTime * 5.0);
@@ -41,6 +41,20 @@ const FinalShader = {
       col = mix(col, vec3(0.75, 0.03, 0.05) * (0.4 + l), edge * clamp(uDamage + uLowHp * pulse * 0.45, 0.0, 0.85));
       col += vec3(uFlash);
       gl_FragColor = vec4(col, 1.0);
+    }`,
+};
+
+/** Bloom 之前清理一次画面：把 NaN / Inf / 负值收回到安全范围，避免个别异常像素被模糊扩散成黑块 */
+const SanitizeShader = {
+  uniforms: { tDiffuse: { value: null as THREE.Texture | null } },
+  vertexShader: FinalShader.vertexShader,
+  fragmentShader: /* glsl */ `
+    uniform sampler2D tDiffuse;
+    varying vec2 vUv;
+    void main(){
+      vec3 c = texture2D(tDiffuse, vUv).rgb;
+      if (any(isnan(c)) || any(isinf(c))) c = vec3(0.0);
+      gl_FragColor = vec4(clamp(c, vec3(0.0), vec3(64.0)), 1.0);
     }`,
 };
 
@@ -97,6 +111,7 @@ export class Renderer {
     this.bloom = new UnrealBloomPass(new THREE.Vector2(size.x / 2, size.y / 2), 0.5, 0.7, 0.92);
     this.final = new ShaderPass(FinalShader);
     this.composer.addPass(this.renderPass);
+    this.composer.addPass(new ShaderPass(SanitizeShader));
     this.composer.addPass(this.bloom);
     this.composer.addPass(this.final);
     this.composer.addPass(new OutputPass());

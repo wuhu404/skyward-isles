@@ -34,21 +34,25 @@ const VERT = /* glsl */ `
     vColor = aColor;
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = min(220.0, aSize * uScale / max(0.1, -mv.z));
+    gl_PointSize = clamp(aSize * uScale / max(0.1, -mv.z), 1.0, 220.0);
+    // 已熄灭的粒子直接移出裁剪空间（点大小为 0 在部分显卡上仍会画出 1 像素）
+    if (aSize <= 0.0 || aColor.a <= 0.0) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
   }`;
 const FRAG_ADD = /* glsl */ `
   varying vec4 vColor;
   void main(){
     float d = length(gl_PointCoord - 0.5);
-    float a = smoothstep(0.5, 0.0, d);
-    gl_FragColor = vec4(vColor.rgb * (a * a * 1.6 + smoothstep(0.16, 0.0, d)), vColor.a * a);
+    // 注意：smoothstep 的 edge0 必须小于 edge1，反过来写在部分显卡上结果未定义
+    float a = 1.0 - smoothstep(0.0, 0.5, d);
+    float core = 1.0 - smoothstep(0.0, 0.16, d);
+    gl_FragColor = vec4(max(vColor.rgb, 0.0) * (a * a * 1.6 + core), clamp(vColor.a * a, 0.0, 1.0));
   }`;
 const FRAG_NORMAL = /* glsl */ `
   varying vec4 vColor;
   void main(){
     vec2 p = abs(gl_PointCoord - 0.5);
     if (p.x + p.y > 0.5) discard;
-    gl_FragColor = vec4(vColor.rgb, vColor.a);
+    gl_FragColor = vec4(max(vColor.rgb, 0.0), clamp(vColor.a, 0.0, 1.0));
   }`;
 
 class Layer {
@@ -121,14 +125,15 @@ class Layer {
       this.vel[i3] = (o.vx ?? 0) + dx * sp;
       this.vel[i3 + 1] = (o.vy ?? 0) + dy * sp;
       this.vel[i3 + 2] = (o.vz ?? 0) + dz * sp;
-      const life = (o.life ?? 0.6) * (0.7 + Math.random() * 0.6);
+      const life = Math.max(0.01, (o.life ?? 0.6) * (0.7 + Math.random() * 0.6));
       this.life[i] = life;
       this.maxLife[i] = life;
       this.grav[i] = o.gravity ?? 0;
       this.drag[i] = o.drag ?? 0;
       const s = (o.size ?? 0.2) * (0.7 + Math.random() * 0.6);
       this.s0[i] = s;
-      this.s1[i] = o.sizeEnd !== undefined ? o.sizeEnd * (s / (o.size ?? 0.2)) : 0;
+      const base = o.size ?? 0.2;
+      this.s1[i] = o.sizeEnd !== undefined && base > 0 ? o.sizeEnd * (s / base) : 0;
       this.c0[i3] = c0.r; this.c0[i3 + 1] = c0.g; this.c0[i3 + 2] = c0.b;
       this.c1[i3] = c1.r; this.c1[i3 + 1] = c1.g; this.c1[i3 + 2] = c1.b;
       this.a0[i] = o.alpha ?? 1;

@@ -223,6 +223,8 @@ export class World {
   }
 
   /** 玩家复活时重置普通敌人与可破坏物 */
+  /** “脱离卡死”：让所有机关把自己恢复到可用状态 */
+  unstick() { for (const t of this.things) t.unstick(); }
   resetEncounters() {
     for (const e of this.enemies) e.respawn();
     for (const p of this.pots) p.reset();
