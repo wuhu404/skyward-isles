@@ -1,5 +1,8 @@
 # 云垣遗歌 · Skyward Isles
 
+**在线试玩：<https://wuhu404.github.io/skyward-isles/>**（桌面 Chrome / Edge，需要键盘和鼠标）
+
+
 一款用 **Three.js + TypeScript + Vite + Rapier** 从零写成的 3D 第三人称动作冒险游戏。
 你是一名旅人，从启程岛出发，穿过四片浮空群岛，取回三种风之能力，最终在风暴祭坛挑战「苍穹守卫 · 岚」。
 
@@ -65,3 +68,15 @@ npm run build:single   # 额外生成 dist/skyward-isles.html：单个文件，�
 
 - 只支持键盘鼠标，没有手柄和触屏操作。
 - 生产包约 2.8 MB（gzip 后约 1 MB），其中大部分是内联的 Rapier WebAssembly。
+
+## 部署（GitHub Pages）
+
+仓库已配置 `.github/workflows/deploy.yml`：
+
+- 推送到 `main` 分支后自动执行 `npm ci` → 类型检查 → 生产构建 → 发布到 GitHub Pages。
+- 类型检查或构建失败时不会发布，线上保持上一个可用版本。
+- 也可以在仓库的 Actions 页面选择 “Deploy to GitHub Pages” → “Run workflow” 手动重新部署。
+- 构建时通过环境变量 `VITE_BASE` 传入仓库子路径（`/skyward-isles/`）；本地构建默认使用相对路径 `./`。
+- 首次使用需在仓库 Settings → Pages 中把 Source 设为 “GitHub Actions”。
+
+游戏没有后端、没有外部素材和路由，全部资源（含 Rapier 的 WASM）都打包在 JS 里，属于纯静态站点。

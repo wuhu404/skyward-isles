@@ -33,6 +33,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1020; col
 .btns.cols { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); }
 .btns.cols .wide { grid-column: 1 / -1; }
 .center .btn:hover { padding-left: 30px; }
+.notice { max-width: min(420px, 82vw); margin: 0 0 22px; padding: 10px 14px; font-size: 13px; line-height: 1.7; letter-spacing: 0.06em; color: #ffe2a8; background: rgba(255, 190, 90, 0.12); border: 1px solid rgba(255, 200, 120, 0.4); border-radius: 4px; }
 .foot { position: absolute; bottom: 22px; left: 9vw; font-size: 12px; color: var(--dim); letter-spacing: 0.12em; }
 
 /* ---------- 面板（设置 / 操作说明） ---------- */

@@ -135,6 +135,7 @@ export class UI implements UIHooks {
       case 'menu':
         return `<div class="screen menu">
           <h1 class="title">云垣遗歌</h1><div class="subtitle">Skyward Isles</div>
+          ${matchMedia('(hover: none) and (pointer: coarse)').matches ? '<p class="notice">检测到触屏设备：本游戏目前只支持键盘和鼠标操作，请在电脑浏览器中打开游玩。</p>' : ''}
           <div class="btns">
             <button class="btn" data-act="continue" ${this.hasSave ? '' : 'disabled'}>继续旅程${this.hasSave ? '' : '<small>暂无存档</small>'}</button>
             <button class="btn" data-act="${this.hasSave ? 'confirmNew' : 'new'}">新的旅程</button>
