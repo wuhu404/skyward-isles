@@ -223,7 +223,7 @@ export function grassTuftGeo(): THREE.BufferGeometry {
     const cx = Math.cos(a), sz = Math.sin(a);
     const lx = -sz * lean, lz = cx * lean;
     const pts = [[-cx * w, 0, -sz * w], [cx * w, 0, sz * w], [lx, h, lz]];
-    for (const p of pts) { pos.push(p[0], p[1], p[2]); const k = p[1] > 0 ? 1.0 : 0.55; col.push(k, k, k); }
+    for (const p of pts) { pos.push(p[0], p[1], p[2]); const k = p[1] > 0 ? 1.0 : 0.7; col.push(k, k, k); }
   };
   blade(0, 0.13, 0.62, 0.16); blade(1.05, 0.12, 0.5, -0.14); blade(2.1, 0.13, 0.56, 0.12);
   blade(0.5, 0.1, 0.4, -0.2); blade(1.6, 0.1, 0.45, 0.2);
@@ -257,6 +257,8 @@ export function grassMaterial(uniforms: { uTime: { value: number }; uPlayer: { v
           transformed.xz += normalize(dp.xz + 0.0001) * push * 0.45 * hk;
           transformed.y -= push * 0.22 * hk;
         #endif`);
+    // 双面渲染时背面法线会被翻转成朝下而变黑：翻回去，让草叶两面受光一致
+    sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\n#ifdef DOUBLE_SIDED\n  normal *= faceDirection;\n#endif');
   };
   return m;
 }

@@ -69,3 +69,12 @@ abstract Enemy(ctx,x,y,z,tint)：实现 Hittable+EnemyLike；子类实现 think(
 Slime(ctx,x,y,z,tier 0-2)、Golem(ctx,x,y,z,tier 0-2,facing)、Wisp(ctx,x,y,z,tier 0-2)。创建后需 push 到 world.enemies 和 world.hittables。
 ### Boss（entities/Boss.ts）
 new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；phase 1-3；玩家靠近 17m 开战；死亡演出后调用 ctx.onBossDefeated()；respawn() 重置（已击败则不重置）。需 push 到 world.enemies / world.hittables 并赋给 world.boss。
+
+## 开发测试备忘（非产品内容，交付前可删）
+- 已完成：world/Level.ts、ui/UI.ts + ui/style.css、core/Game.ts、main.ts；tsc 通过；`npx vite --port 5173 --host 127.0.0.1` 在 shell `vite` 中运行。
+- 浏览器测试工具在 `~/tools/pw`（playwright-core 通过 CDP http://localhost:29229 连接已运行的 Chrome）：`node drive.mjs t/<脚本>.mjs`，截图存 `~/tools/pw/shots`。
+  - `t/bot.js`：注入页面的机器人（window.bot）：on()/off() 接管主循环无渲染快进；step(n,down,press)、goto(x,z,opts)、route([[x,z,opts]])、fight(R)、info()、isl()。dev 模式下 window.game 可访问全部私有字段。
+  - `t/leg1.mjs`：新游戏 → 打两只史莱姆 → 跳浮石到 B 岛（已验证通过）。
+- VM 只有 SwiftShader 软件渲染：高画质约 1.5~3 FPS、低画质约 8 FPS（非游戏问题）；VM 的 Chrome 不识别 CJK 字体，截图里中文显示为方框（非游戏问题）。
+- 待办：机器人继续验证 B 岛推箱压板/闸门/二段跳祭坛 → C 符文谜题/移动平台 → D 风刃/水晶光桥 → E 三水晶限时/上升气流 → F 滑翔 → G Boss → 通关界面；
+  之后：暂停/设置/死亡重试 UI 验证；按帧率自动降画质 + 软件渲染默认低画质；README；npm run build；git 提交；PR（仓库无远端则直接交付源码压缩包）。

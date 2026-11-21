@@ -86,13 +86,13 @@ export class Game {
       settings: this.settings, ui: this.ui, time: 0,
       physics: null!, mats: null!, save: null!, player: null!, world: null!, projectiles: null!,
       hitStop: (s) => { g.hitStopT = Math.max(g.hitStopT, s); },
-      saveGame: () => writeSave(g.ctx.save),
+      saveGame: () => g.persist(),
       hasFlag: (f) => g.ctx.save.flags.includes(f),
       setFlag: (f) => { if (!g.ctx.save.flags.includes(f)) g.ctx.save.flags.push(f); },
       isCollected: (id) => g.ctx.save.collected.includes(id),
       collect: (id) => { if (!g.ctx.save.collected.includes(id)) g.ctx.save.collected.push(id); },
       unlockAbility: (a) => g.unlockAbility(a),
-      setCheckpoint: (id) => { g.ctx.save.checkpoint = id; writeSave(g.ctx.save); },
+      setCheckpoint: (id) => { g.ctx.save.checkpoint = id; g.persist(); },
       onPlayerDeath: () => g.onPlayerDeath(),
       onBossDefeated: () => g.onBossDefeated(),
       flash: (a) => { g.flashV = Math.max(g.flashV, a); },
@@ -118,6 +118,9 @@ export class Game {
     this.last = performance.now();
     this.raf = requestAnimationFrame(this.frame);
   }
+
+  /** 菜单背景场景不产生存档 */
+  private persist() { if (this.state !== 'menu' && this.state !== 'boot') writeSave(this.ctx.save); }
 
   private applySettings(s: Settings) {
     this.settings = s;
@@ -164,7 +167,7 @@ export class Game {
     const cp = c.world.checkpoints.get(c.save.checkpoint) ?? c.world.checkpoints.get('cp_start')!;
     c.player.revive(true);
     c.player.teleport(cp.x, cp.y + 0.2, cp.z, cp.facing);
-    this.cam.snapTo(c.player.pos, cp.facing + Math.PI);
+    this.cam.snapTo(c.player.pos, cp.facing + Math.PI + 0.5); // 略微偏转，避免风之碑挡在镜头前
     this.lastHp = c.player.hp;
     this.zone = null;
     this.hitStopT = 0;
