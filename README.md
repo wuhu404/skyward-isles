@@ -14,7 +14,10 @@ npm install
 npm run dev        # 开发模式，浏览器打开终端里给出的地址（默认 http://localhost:5173）
 npm run build      # 类型检查 + 生产构建，输出到 dist/
 npm run preview    # 本地预览生产构建
+npm run build:single   # 额外生成 dist/skyward-isles.html：单个文件，双击即可在浏览器里运行
 ```
+
+注意：仓库根目录的 `index.html` 引用的是 TypeScript 源码，直接双击打开不会运行，必须通过上面的命令启动；想要免安装运行请用 `build:single` 生成的单文件。
 
 ## 操作
 
