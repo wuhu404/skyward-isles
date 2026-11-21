@@ -89,3 +89,5 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
 - t/leg5.mjs 首次运行：E 岛战斗通过（hp 100→68）。三水晶谜题未完成（6.6 秒内对三颗 Crystal 各放风刃后 flags 中没有 updraft_e）。
   水晶 hitPos：(-84,36.2,-256)、(-50,35,-284)、(-98,33.5,-280)，玩家站在 (-68,28,-269)。待查：风刃是否真的命中高处水晶（Player.fireBlade 自动瞄准 / dy 钳制、
   Projectiles 风刃命中判定 hitRadius+0.9 与 hitHeight*0.5+0.9、被树或冰柱底座挡住）、Crystal 的 lit 字段名与限时窗口逻辑。存档仍在 cp_e。
+- t/dbg2.mjs 结论：水晶谜题逻辑正常（第 2、3 颗从 (-68,-268) 可直接点亮）；第 1 颗 (-84,36.2,-256) 的风刃在 (-72.3,30.9,-264) 被场景物挡住（站位问题，非 bug）。
+  leg5 需改为：先走到 (-78,-259) 附近打第 1 颗，再回 (-68,-268) 打第 2、3 颗（16 秒窗口内）。之后验证气流 → F → 滑翔 → G → Boss。
