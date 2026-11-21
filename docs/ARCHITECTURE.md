@@ -99,3 +99,6 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
 - t/leg7.mjs 通过：F 岛战斗、滑翔祭坛、从 F 北缘滑翔到 G 岛并激活 cp_boss（存档在 cp_boss，三项能力齐全）。
   下一步 t/leg8.mjs：Boss 战（Boss 在 G 岛中心 (-19.4,28,-398.4)，world.boss；玩家靠近 17m 开战；机器人需：靠近攻击、state 为 slam/combo(step1)/sweep/charge 时用 Q 翻滚或后撤、storm 时保持移动、recover 时猛攻、低血喝药 R）→ 验证三阶段切换、死亡演出、onBossDefeated、通关界面（ui.screen==='victory'）与“继续探索”。
   其余待办：暂停/设置 UI 实测、按帧率自动降画质 + 软件渲染默认低画质、README、npm run build、提交、交付。
+- t/leg8.mjs 通过：Boss 战全程（三阶段、slam/sweep/volley/combo/charge/storm 全部出现，机器人挨了 8 次、用光 3 瓶药、41 秒击败），死亡演出 → onBossDefeated → 通关界面 victory（统计：time/deaths/kills/shards 33/68/relics 0/7）。
+  ⇒ 全流程（新游戏 → 通关）已由机器人逐段验证可完成。Boss 950 血在 41 秒内被打完，偏快：考虑把 Boss 血量提到 ~1500 或降低 recover 时长。
+  剩余待办：① 通关界面“继续探索”、暂停/设置 UI、返回主菜单实测 ② 按帧率自动降画质 + 软件渲染默认低画质 ③ Boss 平衡 ④ 截图检查各区域画面 ⑤ README ⑥ npm run build ⑦ 提交、交付（browser_preview + 源码）。
