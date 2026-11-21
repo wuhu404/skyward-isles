@@ -41,11 +41,7 @@
 - Player 对外：pos/vel/facing/hp/stamina/potions/weaponLevel/state/grounded/gliding/iframe/skillCd/frozen/lastSafe、teleport/revive/heal/takeDamage(amount, fromX, fromZ, knock)/die/update/dispose、center（临时向量）。
 - UIHooks：toast/banner/damageNumber/setPrompt/setObjective/setBoss/abilityCard。
 
-## 进度备忘（实现状态）
-已完成并通过 tsc：core/*（math, Input, Physics, Save, Audio, Context）、gfx/*（geo, Renderer, Sky, Particles, Effects, CameraRig）、
-entities/Humanoid、entities/Player、world/Island、world/Props、world/Interactables、world/World。
-待写：entities/Enemy(+Slime/Golem/Wisp)、entities/Projectiles、entities/Boss、world/Level、ui/UI(+css)、core/Game、main.ts、README。
-
+## 模块 API 速查
 ### World API（world/World.ts）
 root / islands / things / hittables / enemies: EnemyLike[] / boss: BossLike|null / pots / platforms / updrafts / signals / checkpoints(id→{x,y,z,facing,name}) / totals{relic,shard}
 geo(key, make) / own(geo) / addIsland(opts): Island / beginProps(seed): PropCtx / endProps(pc) / addGrass(isl, density, c1, c2, seed, avoid, scale) / add(thing) / finish()
@@ -70,39 +66,11 @@ Slime(ctx,x,y,z,tier 0-2)、Golem(ctx,x,y,z,tier 0-2,facing)、Wisp(ctx,x,y,z,ti
 ### Boss（entities/Boss.ts）
 new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；phase 1-3；玩家靠近 17m 开战；死亡演出后调用 ctx.onBossDefeated()；respawn() 重置（已击败则不重置）。需 push 到 world.enemies / world.hittables 并赋给 world.boss。
 
-## 开发测试备忘（非产品内容，交付前可删）
-- 已完成：world/Level.ts、ui/UI.ts + ui/style.css、core/Game.ts、main.ts；tsc 通过；`npx vite --port 5173 --host 127.0.0.1` 在 shell `vite` 中运行。
-- 浏览器测试工具在 `~/tools/pw`（playwright-core 通过 CDP http://localhost:29229 连接已运行的 Chrome）：`node drive.mjs t/<脚本>.mjs`，截图存 `~/tools/pw/shots`。
-  - `t/bot.js`：注入页面的机器人（window.bot）：on()/off() 接管主循环无渲染快进；step(n,down,press)、goto(x,z,opts)、route([[x,z,opts]])、fight(R)、info()、isl()。dev 模式下 window.game 可访问全部私有字段。
-  - `t/leg1.mjs`：新游戏 → 打两只史莱姆 → 跳浮石到 B 岛（已验证通过）。
-- VM 只有 SwiftShader 软件渲染：高画质约 1.5~3 FPS、低画质约 8 FPS（非游戏问题）；VM 的 Chrome 不识别 CJK 字体，截图里中文显示为方框（非游戏问题）。
-- 待办：机器人继续验证 B 岛推箱压板/闸门/二段跳祭坛 → C 符文谜题/移动平台 → D 风刃/水晶光桥 → E 三水晶限时/上升气流 → F 滑翔 → G Boss → 通关界面；
-  之后：暂停/设置/死亡重试 UI 验证；按帧率自动降画质 + 软件渲染默认低画质；README；npm run build；git 提交；PR（仓库无远端则直接交付源码压缩包）。
-- 进度：t/leg2.mjs（B 岛推箱/闸门/二段跳）与 t/leg3.mjs（之字浮石阶梯 → C 岛战斗 → 符文谜题 → 移动平台 → D 岛 cp_d）均已通过；死亡界面与“从风之碑重试”已验证。
-  B→C 浮石已改为之字形（原直线阶梯会被上一级挡头）。机器人按键需同时写 down+pressed（否则触发短跳）。
-  每个 leg 脚本开头：goto 页面 → 点 [data-act="continue"] → 注入 bot.js。下一步 leg4：D 战斗 + 风刃祭坛(-62,-188) + 风刃打水晶(-45,24,-214) + 光桥 → E。
-- leg4 首次运行：D 岛战斗通过（hp 100→76）；机器人按 F 时离风刃祭坛正好 4m（提示半径 4）没拿到能力 → 脚本改为走到 (-62,-186.3) 再按 F（属脚本问题，非游戏 bug）。光桥 / E 岛尚未验证。
-- leg4 第二次：风刃祭坛、风刃击中水晶、bridge_d 已通过并存档（存档在 cp_d，已有 windBlade + bridge_d）。光桥是每级抬升约 0.87m 的光之阶梯（需要跳），机器人用 noJump 走会掉下去 → t/leg4b.mjs 改为逐块跳。
-- t/leg4b.mjs 通过：逐块跳过光之阶梯到达 E 岛 cp_e（存档现位于 cp_e）。
-  下一步 leg5：E 岛战斗 → 16 秒内用风刃点亮三颗水晶 (-84,-256 高7)、(-50,-284 高6)、(-98,31,-280)（flag updraft_e）→ 气流柱在 (-39.7,28,-285.4) 上升到 50 → 落到 F 岛 (-23.4,50,-302.4) → cp_f、滑翔祭坛在 F 岛中心 → 向北滑翔到 G (-19.4,28,-398.4)，途中气流 → cp_boss → Boss 战 → 通关界面。
-  机器人瞄准风刃：b.face(x,z) 并设 game.cam.pitch = -atan2(dy, d)，自动瞄准锥角 0.42 rad、射程 46。
-- t/leg5.mjs 首次运行：E 岛战斗通过（hp 100→68）。三水晶谜题未完成（6.6 秒内对三颗 Crystal 各放风刃后 flags 中没有 updraft_e）。
-  水晶 hitPos：(-84,36.2,-256)、(-50,35,-284)、(-98,33.5,-280)，玩家站在 (-68,28,-269)。待查：风刃是否真的命中高处水晶（Player.fireBlade 自动瞄准 / dy 钳制、
-  Projectiles 风刃命中判定 hitRadius+0.9 与 hitHeight*0.5+0.9、被树或冰柱底座挡住）、Crystal 的 lit 字段名与限时窗口逻辑。存档仍在 cp_e。
-- t/dbg2.mjs 结论：水晶谜题逻辑正常（第 2、3 颗从 (-68,-268) 可直接点亮）；第 1 颗 (-84,36.2,-256) 的风刃在 (-72.3,30.9,-264) 被场景物挡住（站位问题，非 bug）。
-  leg5 需改为：先走到 (-78,-259) 附近打第 1 颗，再回 (-68,-268) 打第 2、3 颗（16 秒窗口内）。之后验证气流 → F → 滑翔 → G → Boss。
-- t/leg5.mjs 通过：E 岛战斗 + 三水晶限时谜题（updraft_e 已置位并存档，存档在 cp_e，hp 逻辑正常）。
-  下一步 t/leg6.mjs：走到气流柱 (-39.7,28,-285.4)（E 岛边缘外的小浮石，需跳上去）→ 乘气流升到 y≈50 → 向 F 岛 (-23.4,50,-302.4) 移动落地 → cp_f → 战斗 → 滑翔祭坛(F 岛中心按 F) → 从北缘滑翔到 G(-19.4,28,-398.4) → cp_boss → Boss 战 → 通关界面。
-- t/leg6.mjs 通过：气流柱把玩家从 28 升到 51.8（82 帧），落到 F 岛，cp_f 已激活（存档在 cp_f）。
-  下一步 t/leg7.mjs：F 岛战斗（2 幽光灵 + 1 石像）→ 滑翔祭坛（F 岛中心 (-23.4,-302.4) 按 F）→ 从北缘 (≈-22.4,-322) 起跳并按住空格滑翔到 G(-19.4,28,-398.4)，途中气流在航线中点 → cp_boss → Boss 战（机器人 fight 需加对 Boss 的处理）→ 通关界面。
-  全流程通过后：暂停/设置 UI 实测、自动降画质、README、npm run build、提交。
-- t/leg7.mjs 通过：F 岛战斗、滑翔祭坛、从 F 北缘滑翔到 G 岛并激活 cp_boss（存档在 cp_boss，三项能力齐全）。
-  下一步 t/leg8.mjs：Boss 战（Boss 在 G 岛中心 (-19.4,28,-398.4)，world.boss；玩家靠近 17m 开战；机器人需：靠近攻击、state 为 slam/combo(step1)/sweep/charge 时用 Q 翻滚或后撤、storm 时保持移动、recover 时猛攻、低血喝药 R）→ 验证三阶段切换、死亡演出、onBossDefeated、通关界面（ui.screen==='victory'）与“继续探索”。
-  其余待办：暂停/设置 UI 实测、按帧率自动降画质 + 软件渲染默认低画质、README、npm run build、提交、交付。
-- t/leg8.mjs 通过：Boss 战全程（三阶段、slam/sweep/volley/combo/charge/storm 全部出现，机器人挨了 8 次、用光 3 瓶药、41 秒击败），死亡演出 → onBossDefeated → 通关界面 victory（统计：time/deaths/kills/shards 33/68/relics 0/7）。
-  ⇒ 全流程（新游戏 → 通关）已由机器人逐段验证可完成。Boss 950 血在 41 秒内被打完，偏快：考虑把 Boss 血量提到 ~1500 或降低 recover 时长。
-  剩余待办：① 通关界面“继续探索”、暂停/设置 UI、返回主菜单实测 ② 按帧率自动降画质 + 软件渲染默认低画质 ③ Boss 平衡 ④ 截图检查各区域画面 ⑤ README ⑥ npm run build ⑦ 提交、交付（browser_preview + 源码）。
-- t/ui1.mjs 通过：通关界面“继续探索”→ playing；Esc 暂停；设置（画质 low、显示 FPS 即时生效并写入 localStorage）；帮助页 Esc 返回；继续；返回主菜单（按钮：continue/confirmNew/settings/help）。
-  剩余：Boss 平衡、按帧率自动降画质、各区域截图检查、README、npm run build、提交、交付。
-- 已加：设置项 autoQuality（连续 4 秒 <30FPS 逐级降画质）；Boss 血量 950→1500（机器人 47 秒击败、挨 5 次、剩 2 瓶药）。tsc 通过。
-  剩余：各区域截图检查（t/shots.mjs：改存档 checkpoint 后继续游戏截图）、README、npm run build、提交、交付。
+## 验证记录
+- `npm run typecheck`、`npm run build` 通过。
+- 用注入页面的脚本机器人（接管主循环、以 60Hz 固定步长写入按键状态，走的是与玩家相同的输入 → Player → Rapier 路径）逐段跑通全流程：
+  启程岛战斗 → 浮石 → 牧风丘推箱/压板/闸门/二段跳祭坛 → 之字浮石阶梯 → 遗迹战斗/符文谜题/移动平台 → 神殿战斗/风刃祭坛/风刃点亮水晶/光之阶梯
+  → 霜原战斗/三水晶限时谜题/上升气流 → 极光台战斗/滑翔祭坛/滑翔 → 风暴祭坛 Boss 三阶段 → 通关界面。
+- 真实点击验证：新游戏、继续、死亡重试、通关后继续探索、Esc 暂停、设置即时生效并持久化、操作说明、返回主菜单。
+- 反复“继续 → 返回主菜单”三轮，GPU geometry / texture / program 数量与 Rapier 刚体、碰撞体数量保持不变。
+- 未覆盖：七件遗物的收集路线、真实显卡上的帧率（开发机只有软件渲染）。

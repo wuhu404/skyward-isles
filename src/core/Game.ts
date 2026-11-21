@@ -169,7 +169,7 @@ export class Game {
     const cp = c.world.checkpoints.get(c.save.checkpoint) ?? c.world.checkpoints.get('cp_start')!;
     c.player.revive(true);
     c.player.teleport(cp.x, cp.y + 0.2, cp.z, cp.facing);
-    this.cam.snapTo(c.player.pos, cp.facing + Math.PI + 0.5); // 略微偏转，避免风之碑挡在镜头前
+    this.cam.snapTo(c.player.pos, cp.facing + Math.PI + 0.9); // 偏转，避免风之碑挡在镜头前
     this.lastHp = c.player.hp;
     this.zone = null;
     this.hitStopT = 0;
