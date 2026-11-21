@@ -136,3 +136,20 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1020; col
 /* ---------- 转场 ---------- */
 #fade { position: absolute; inset: 0; background: #05070f; opacity: 0; pointer-events: none; transition: opacity 0.45s ease; }
 #fade.on { opacity: 1; pointer-events: auto; }
+
+/* 小屏幕（手机横屏 / 竖屏）：菜单压缩并允许滚动，避免按钮被裁掉 */
+@media (max-height: 560px) {
+  .screen, .screen.menu { justify-content: flex-start; overflow-y: auto; box-sizing: border-box; padding-top: 14px; padding-bottom: 14px; }
+  .title { font-size: 34px; }
+  .subtitle { margin-bottom: 12px; }
+  .h2 { margin-bottom: 6px; }
+  .lead { margin-bottom: 12px; line-height: 1.5; }
+  .notice { margin-bottom: 10px; padding: 6px 10px; font-size: 12px; max-width: 70vw; }
+  .btns { gap: 6px; }
+  .btn { padding: 7px 22px; font-size: 15px; }
+  .foot { display: none; }
+}
+@media (max-width: 520px) {
+  .btns.cols { grid-template-columns: 1fr; }
+  .foot { right: 9vw; }
+}
