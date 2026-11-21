@@ -78,3 +78,6 @@ new Boss(ctx,x,y,z,arenaR)；导出 BOSS_NAME；BossLike(started/defeated)；pha
 - VM 只有 SwiftShader 软件渲染：高画质约 1.5~3 FPS、低画质约 8 FPS（非游戏问题）；VM 的 Chrome 不识别 CJK 字体，截图里中文显示为方框（非游戏问题）。
 - 待办：机器人继续验证 B 岛推箱压板/闸门/二段跳祭坛 → C 符文谜题/移动平台 → D 风刃/水晶光桥 → E 三水晶限时/上升气流 → F 滑翔 → G Boss → 通关界面；
   之后：暂停/设置/死亡重试 UI 验证；按帧率自动降画质 + 软件渲染默认低画质；README；npm run build；git 提交；PR（仓库无远端则直接交付源码压缩包）。
+- 进度：t/leg2.mjs（B 岛推箱/闸门/二段跳）与 t/leg3.mjs（之字浮石阶梯 → C 岛战斗 → 符文谜题 → 移动平台 → D 岛 cp_d）均已通过；死亡界面与“从风之碑重试”已验证。
+  B→C 浮石已改为之字形（原直线阶梯会被上一级挡头）。机器人按键需同时写 down+pressed（否则触发短跳）。
+  每个 leg 脚本开头：goto 页面 → 点 [data-act="continue"] → 注入 bot.js。下一步 leg4：D 战斗 + 风刃祭坛(-62,-188) + 风刃打水晶(-45,24,-214) + 光桥 → E。

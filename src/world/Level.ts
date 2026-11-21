@@ -146,10 +146,14 @@ export function buildLevel(ctx: Ctx, w: World) {
   const R = PALETTES.ruins;
   const C = w.addIsland({ x: 0, y: 16, z: -160, r: 32, seed: 3, palette: R, hill: 1.0, flats: [[0, -160, 13], [0, -136, 6], [-22, -168, 7], [16, -176, 6]], paths: [[0, -130, 0, -160, 3.4], [0, -160, -26, -170, 3]] });
   {
-    const a = B.edgePoint(N, 1.2), b = C.edgePoint(S, 1.2);
-    const n = Math.round((b.y - a.y) / 2.3) - 1;
-    const pts = link(a, b, n, 2.3, R, 0.8);
-    for (const p of pts) shard(p.x, p.y + 0.6, p.z);
+    // 之字形上升的浮石阶梯：相邻两级左右错开，避免上一级挡在头顶；每级抬升约 1.9m，需要二段跳
+    const a = B.edgePoint(N, -1), b = C.edgePoint(S, -1);
+    const n = 6;
+    for (let i = 1; i <= n; i++) {
+      const t = i / (n + 1);
+      const p = stone(a.x + (b.x - a.x) * t + (i % 2 ? 3 : -3), a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, 2.1, R);
+      shard(p.x, p.y + 0.4, p.z);
+    }
   }
   let platA: THREE.Vector3, platB: THREE.Vector3;
   const D = w.addIsland({ x: -62, y: 20, z: -185, r: 20, seed: 4, palette: R, hill: 0.7, flats: [[-62, -185, 8], [-62, -198, 5]], paths: [[-48, -180, -62, -185, 2.6], [-62, -185, -62, -203, 2.6]] });
