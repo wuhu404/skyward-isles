@@ -40,6 +40,7 @@ export interface UIHooks {
   setObjective(text: string): void;
   setBoss(name: string | null, frac?: number, phase?: number): void;
   abilityCard(title: string, desc: string, key: string): void;
+  dialog(text: string, seconds?: number): void;
 }
 
 /** 游戏上下文：所有系统通过它互相访问，避免到处 import 单例 */

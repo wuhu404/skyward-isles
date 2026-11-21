@@ -718,7 +718,7 @@ export class Sign extends Thing {
   }
   update() { /* 静态 */ }
   prompt() { return this.near(2.6) ? '阅读告示' : null; }
-  interact() { this.ctx.audio.play('ui'); this.ctx.ui.toast(this.text, 'info', 7); }
+  interact() { this.ctx.audio.play('ui'); this.ctx.ui.dialog(this.text, 8); }
 }
 
 // ---------------------------------------------------------------- 陶罐（可击碎）

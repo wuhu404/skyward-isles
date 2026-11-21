@@ -106,6 +106,11 @@ export class Input {
     this.mouseDY = 0;
     this.wheel = 0;
   }
+  /** 多子步模拟时，在第一个子步后清空瞬时按键 */
+  consumePresses() {
+    this.pressed.clear();
+    this.released.clear();
+  }
   clear() {
     this.down.clear();
     this.pressed.clear();
